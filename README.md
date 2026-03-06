@@ -1,2 +1,6 @@
 # Dashboard-BDN007-2026
-Repositório para desenvolvimento de exercícios e projetos dentro da matéria de Business Intelligence e Big Data pelo Grupo 1 "Candi", durante o ano de 2026 :)
+
+<div align="center">
+  <img src="https://media.tenor.com/_KN78DevcOEAAAAM/zen-cartman.gif" width="400"/> <br>
+  tratando_dados_com_professor_do_sabadou.drawio
+</div>
