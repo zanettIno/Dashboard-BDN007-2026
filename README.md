@@ -28,8 +28,8 @@ Fatec São Caetano do Sul · 2026
 Dashboard-BDN007-2026/
 ├── cancerPatientData-dashboard/   # Dashboard clínico individual (dataset único)
 │
-└── crossData-dashboard/           # Dashboard de análise cruzada (múltiplos datasets): N1
-    ├── dados-candi-API/           # API para importação dos dados do CANDI
+└── crossData-dashboard/           # Dashboard de análise cruzada (múltiplos datasets)
+    ├── dados-candi-API/           # Código fonte da API de importação dos dados do CANDI
     ├── main.py                    # Aplicação Streamlit principal
     ├── main.ipynb                 # Notebook de exploração dos datasets
     ├── load_datasets.py           # Módulo de carregamento lazy/eager dos datasets
@@ -38,34 +38,9 @@ Dashboard-BDN007-2026/
 
 ---
 
-## 📊 Dashboards
+## 📊 Dashboard N1
 
-### 1. `cancerPatientData-dashboard` — Dashboard Oncológico Clínico
-
-Dashboard focado na análise clínica e epidemiológica de um único dataset de pacientes oncológicos (`cancer_patient_data.csv`).
-
-**Principais funcionalidades:**
-- Indicadores gerais: total de pacientes, taxa de sobrevivência, média de idade, tamanho de tumor, metástase e sessões de quimioterapia
-- Distribuição e taxa de sobrevivência por tipo de tumor
-- Comparação clínica com scatter plot configurável (eixos X/Y dinâmicos)
-- Perfil médio de tratamento via gráfico de radar normalizado
-- Distribuição por estágio do câncer e status de sobrevivência
-- Tabela de pacientes com perfil de maior risco clínico (top 25% tumor + metástase + estágio III/IV)
-- Análise por tipo de tratamento com taxa de sobrevivência associada
-
-**Stack:** Python · Streamlit · Plotly · Pandas · NumPy
-
-**Para rodar:**
-```bash
-cd cancerPatientData-dashboard
-pip install -r requirements.txt
-# Coloque os arquivos .csv dentro de sua pasta
-streamlit run main.py
-```
-
----
-
-### 2. `crossData-dashboard` — Dashboard de Análise Cruzada
+### `crossData-dashboard` — Dashboard de Análise Cruzada
 
 Dashboard de análise integrada que cruza **8 fontes de dados** distintas sobre oncologia, incluindo dados reais do projeto Candi, datasets do Kaggle e dados abertos do SUS.
 
@@ -77,8 +52,6 @@ Diretório contendo os dados exportados diretamente da API do projeto Candi — 
 
 | Arquivo | Origem | Descrição |
 |---|---|---|
-| `candiSentimentos.csv` | API Candi | Registros de sentimentos de usuários do app Candi |
-| `candiSintomas.csv` | API Candi | Registros de sintomas de usuários do app Candi |
 | `dataSeria.csv` | Kaggle | Dataset Wisconsin — características físicas de tumores |
 | `datasetSUS.csv` | Kaggle | Dados de pacientes oncológicos no SUS (dataset grande, tratado com Dask) |
 | `noticiasCancer.csv` | Kaggle | Artigos científicos e jornalísticos sobre câncer |
@@ -100,7 +73,7 @@ Diretório contendo os dados exportados diretamente da API do projeto Candi — 
 ```bash
 cd crossData-dashboard
 pip install -r requirements.txt
-# Coloque todos os arquivos .csv na pasta /crossData-dashboard
+# Coloque todos os arquivos .csv dentro da pasta /crossData-dashboard
 streamlit run main.py
 ```
 
@@ -111,4 +84,5 @@ streamlit run main.py
 ## ⚙️ Requisitos Gerais
 
 - Python 3.10+
-- Os arquivos `.csv` externos **não estão versionados** (`.gitignore`). Cada membro do grupo deve obtê-los separadamente.
+- Os arquivos `.csv` externos **não estão versionados** (`.gitignore`). Cada membro do grupo deve obtê-los separadamente via Google Drive:
+https://drive.google.com/drive/folders/1MSed8fKre69DQWLBioCEkIilW_97t7HT?usp=sharing
