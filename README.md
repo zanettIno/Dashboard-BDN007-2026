@@ -44,6 +44,10 @@ Dashboard-BDN007-2026/
 
 Dashboard de análise integrada que cruza **8 fontes de dados** distintas sobre oncologia, incluindo dados reais do projeto Candi, datasets do Kaggle e dados abertos do SUS.
 
+<p align="center">
+  <img src="amostraDashboard.png" alt="amostra" width="900"/>
+</p>
+
 #### 📂 `dados-candi-API`
 
 Diretório contendo os dados exportados diretamente da API do projeto Candi — incluindo os registros de sentimentos (`candiSentimentos.csv`) e sintomas (`candiSintomas.csv`) dos pacientes, utilizados nas análises cruzadas do dashboard.
