@@ -27,7 +27,7 @@ Fatec São Caetano do Sul · 2026
 ```
 Dashboard-BDN007-2026/
 ├── cancerPatientData-dashboard/   # Dashboard clínico individual (dataset único)
-└── crossData-dashboard/           # Dashboard de análise cruzada (múltiplos datasets) e nossa N1!
+└── crossData-dashboard/           # Dashboard de análise cruzada (múltiplos datasets) e N1!
 ```
 
 ---
@@ -61,14 +61,12 @@ streamlit run main.py
 
 ### 2. `crossData-dashboard` — Dashboard de Análise Cruzada e N1
 
-Dashboard de análise integrada que cruza **8 fontes de dados** distintas sobre oncologia, incluindo dados reais do projeto Candi, datasets do Kaggle e dados abertos do SUS.
+Dashboard de análise integrada que cruza **8 fontes de dados** distintas sobre oncologia, incluindo dados reais do projeto Candi, que são consumidos por uma API em Python hospedada na AWS Lambda, datasets do Kaggle e dados abertos do SUS.
 
 **Datasets utilizados:**
 
 | Arquivo | Descrição |
 |---|---|
-| `candiSentimentos.csv` | Registros de sentimentos de usuários do app Candi |
-| `candiSintomas.csv` | Registros de sintomas de usuários do app Candi |
 | `dataSeria.csv` | Dataset Wisconsin — características físicas de tumores |
 | `datasetSUS.csv` | Dados de pacientes oncológicos no SUS (dataset grande, tratado com Dask) |
 | `noticiasCancer.csv` | Artigos científicos e jornalísticos sobre câncer |
@@ -101,4 +99,5 @@ streamlit run main.py
 ## ⚙️ Requisitos Gerais
 
 - Python 3.10+
-- Os arquivos `.csv` **não estão versionados** (`.gitignore`). Cada membro do grupo deve obtê-los separadamente.
+- Os arquivos `.csv` **não estão versionados** (`.gitignore`). Cada membro do grupo deve obtê-los separadamente pelo Google Drive
+https://drive.google.com/drive/folders/1MSed8fKre69DQWLBioCEkIilW_97t7HT?usp=sharing
