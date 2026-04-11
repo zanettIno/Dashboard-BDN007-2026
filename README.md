@@ -1,6 +1,6 @@
 <div align="center">
 
-# Dashboard-BDN007-2026
+# Business Intelligence e Big Data
 
 Repositório de exercícios e projetos da disciplina de **Business Intelligence & Big Data** — Grupo 1 "Candi" · Fatec São Caetano do Sul · 2026
 
@@ -17,8 +17,8 @@ Fatec São Caetano do Sul · 2026
 - Fernando Alcantara D'Avila
 - Guilherme Xavier Zanetti
 - Heloísa Pichelli Souza
-- Lucas Batista Sousa
-- Nuno Kazuo Tronco Yokoji
+- Lucas Batista de Sousa
+- Nuno Kasuo Tronco Yokoji
 
 ---
 
@@ -67,13 +67,15 @@ Diretório contendo os dados exportados diretamente da API do projeto Candi — 
 - **Análise cruzada:** distribuição etária CANDI vs Sobrevivência, severidade Wisconsin vs Sobrevivência, felicidade CANDI vs estágios
 - Tempo para início do tratamento por região
 
-**Stack:** Python · Streamlit · Plotly · Pandas · Dask · NumPy
+**Stack:** Python · Streamlit · Plotly · Pandas · Dask · NumPy · AWS Lambda
 
 **Para rodar:**
 ```bash
-cd crossData-dashboard
+git init
+git clone https://github.com/zanettIno/Dashboard-BDN007-2026
+cd Dashboard-BDN007-2026/crossData-dashboard/
 pip install -r requirements.txt
-# Coloque todos os arquivos .csv dentro da pasta /crossData-dashboard
+# Coloque todos os arquivos .csv dentro da pasta crossData-dashboard
 streamlit run main.py
 ```
 
@@ -86,3 +88,7 @@ streamlit run main.py
 - Python 3.10+
 - Os arquivos `.csv` externos **não estão versionados** (`.gitignore`). Cada membro do grupo deve obtê-los separadamente via Google Drive:
 https://drive.google.com/drive/folders/1MSed8fKre69DQWLBioCEkIilW_97t7HT?usp=sharing
+
+<div align="center">
+    Nas trincheiras pelo senhor Professor Leandro de Ágil e BI :)
+</div>
