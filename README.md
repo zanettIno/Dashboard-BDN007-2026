@@ -27,7 +27,7 @@ Fatec São Caetano do Sul · 2026
 ```
 Dashboard-BDN007-2026/
 ├── cancerPatientData-dashboard/   # Dashboard clínico individual (dataset único)
-└── crossData-dashboard/           # Dashboard de análise cruzada (múltiplos datasets)
+└── crossData-dashboard/           # Dashboard de análise cruzada (múltiplos datasets) e nossa N1!
 ```
 
 ---
@@ -59,7 +59,7 @@ streamlit run main.py
 
 ---
 
-### 2. `crossData-dashboard` — Dashboard de Análise Cruzada
+### 2. `crossData-dashboard` — Dashboard de Análise Cruzada e N1
 
 Dashboard de análise integrada que cruza **8 fontes de dados** distintas sobre oncologia, incluindo dados reais do projeto Candi, datasets do Kaggle e dados abertos do SUS.
 
