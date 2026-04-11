@@ -32,34 +32,9 @@ Dashboard-BDN007-2026/
 
 ---
 
-## 📊 Dashboards
+## 📊 Dashboard para N1
 
-### 1. `cancerPatientData-dashboard` — Dashboard Oncológico Clínico
-
-Dashboard focado na análise clínica e epidemiológica de um único dataset de pacientes oncológicos (`cancer_patient_data.csv`).
-
-**Principais funcionalidades:**
-- Indicadores gerais: total de pacientes, taxa de sobrevivência, média de idade, tamanho de tumor, metástase e sessões de quimioterapia
-- Distribuição e taxa de sobrevivência por tipo de tumor
-- Comparação clínica com scatter plot configurável (eixos X/Y dinâmicos)
-- Perfil médio de tratamento via gráfico de radar normalizado
-- Distribuição por estágio do câncer e status de sobrevivência
-- Tabela de pacientes com perfil de maior risco clínico (top 25% tumor + metástase + estágio III/IV)
-- Análise por tipo de tratamento com taxa de sobrevivência associada
-
-**Stack:** Python · Streamlit · Plotly · Pandas · NumPy
-
-**Para rodar:**
-```bash
-cd cancerPatientData-dashboard
-pip install -r requirements.txt
-# Coloque o arquivo cancer_patient_data.csv na pasta
-streamlit run main.py
-```
-
----
-
-### 2. `crossData-dashboard` — Dashboard de Análise Cruzada e N1
+### `crossData-dashboard` — Dashboard de Análise Cruzada 
 
 Dashboard de análise integrada que cruza **8 fontes de dados** distintas sobre oncologia, incluindo dados reais do projeto Candi, que são consumidos por uma API em Python hospedada na AWS Lambda, datasets do Kaggle e dados abertos do SUS.
 
