@@ -2,6 +2,21 @@ import dask.dataframe as dd
 import pandas as pd
 import streamlit as st
 
+import requests
+
+DASHBOARD_API_URL = "https://5nyyovibgktczjjtzvmoaq4swe0qbbwz.lambda-url.us-east-1.on.aws/"
+
+def _fetch_candi_data() -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Fetches CANDIFeelings and CANDISymptoms from the dashboard Lambda."""
+    response = requests.get(f"{DASHBOARD_API_URL}/dashboard", timeout=30)
+    response.raise_for_status()
+    data = response.json()
+
+    sentimentos = pd.DataFrame(data["candiSentimentos"])
+    sintomas    = pd.DataFrame(data["candiSintomas"])
+
+    return sentimentos, sintomas
+
 def load_dataset_lazy():
     """
     Carrega datasets de oncologia mantendo dados grandes em formato Dask (lazy).
@@ -9,8 +24,7 @@ def load_dataset_lazy():
     """
 
     # Datasets PEQUENOS - carregar direto em pandas
-    candiSentimentos = dd.read_csv("candiSentimentos.csv").compute()
-    candiSintomas = dd.read_csv("candiSintomas.csv").compute()
+    candiSentimentos, candiSintomas = _fetch_candi_data()
     datasetSerio = dd.read_csv("dataSeria.csv").compute()
     datasetNoticias = dd.read_csv("noticiasCancer.csv").compute()
     datasetSentimentos2 = dd.read_csv(
