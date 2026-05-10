@@ -17,11 +17,143 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# CONSTANTES
-# ==================================================================
+
+CANDI_PRIMARY   = "#FFC4C4"   
+CANDI_SECONDARY = "#CFFFE5"   
+CANDI_TERTIARY  = "#759AAB"   
+
+CANDI_SCALE = [
+    "#A2ECC5",   
+    CANDI_SECONDARY,   
+    "#D4F3E2",   
+    "#E1F5EA",   
+    "#FFFFFF",   
+    "#FFF4F4",   
+    CANDI_PRIMARY,
+    "#F09090",   
+    "#D87D7D", 
+]
+
+CANDI_CATEGORICAL = [
+    CANDI_TERTIARY,   
+    CANDI_PRIMARY,    
+    CANDI_SECONDARY,  
+    "#A8C4D0",        
+    "#F09090",        
+    "#A2ECC5",       
+    "#D87D7D",        
+    "#5A8090",        
+]
+
+COR_MALIGNO   = "#D87D7D"       
+COR_BENIGNO   = "#8ed3ae"
+COR_MASCULINO = CANDI_TERTIARY   
+COR_FEMININO  = CANDI_PRIMARY    
 
 TRANSPARENT_BG = "rgba(0,0,0,0)"
-SAMPLE_SIZE = 50000  # Limite de amostras para datasets grandes
+
+LAYOUT_DEFAULTS = dict(
+    plot_bgcolor=TRANSPARENT_BG,
+    paper_bgcolor=TRANSPARENT_BG,
+    font=dict(family="sans-serif", color="#3A3A3A"),
+    title_font=dict(size=15, color="#3A3A3A", family="sans-serif"),
+    legend=dict(font=dict(color="#3A3A3A")),
+    xaxis=dict(
+        tickfont=dict(color="#3A3A3A"),
+        title_font=dict(color="#3A3A3A"),
+        gridcolor="#EBEBEB",
+        linecolor="#CCCCCC",
+    ),
+    yaxis=dict(
+        tickfont=dict(color="#3A3A3A"),
+        title_font=dict(color="#3A3A3A"),
+        gridcolor="#EBEBEB",
+        linecolor="#CCCCCC",
+    ),
+    coloraxis_colorbar=dict(
+        outlinewidth=0,
+        tickcolor="#3A3A3A",
+        tickfont=dict(color="#3A3A3A"),
+    ),
+)
+
+st.markdown(
+    """
+    <style>
+        .stApp,
+        .main .block-container,
+        [data-testid="stAppViewContainer"] {
+            background-color: #FAF8F8 !important;
+        }
+
+        .stApp, .stApp p, .stApp span, .stApp div,
+        .stApp label, .stApp li, .stApp a,
+        .stMarkdown, .stMarkdown p, .stMarkdown span,
+        [data-testid="stMarkdownContainer"],
+        [data-testid="stMarkdownContainer"] p,
+        [data-testid="stMarkdownContainer"] span {
+            color: #2A2A2A !important;
+        }
+
+        h1, h2, h3, h4 { color: #1E3540 !important; }
+
+        [data-testid="stSidebar"],
+        [data-testid="stSidebar"] > div {
+            background-color: #EEF4F7 !important;
+        }
+        [data-testid="stSidebar"] *,
+        [data-testid="stSidebar"] p,
+        [data-testid="stSidebar"] span,
+        [data-testid="stSidebar"] label,
+        [data-testid="stSidebar"] div {
+            color: #2A2A2A !important;
+        }
+
+        .stMultiSelect [data-baseweb="tag"] {
+            background-color: #C4D8E2 !important;
+            color: #1A3A4A !important;
+        }
+        .stMultiSelect [data-baseweb="tag"] span,
+        .stMultiSelect [data-baseweb="tag"] button {
+            color: #1A3A4A !important;
+        }
+
+        [data-baseweb="select"] > div,
+        [data-baseweb="popover"] {
+            background-color: #FFFFFF !important;
+            color: #2A2A2A !important;
+        }
+
+        [data-testid="stSlider"] [data-baseweb="slider"] [role="slider"] {
+            background-color: #F09090 !important;
+        }
+
+        [data-testid="stCheckbox"] label span {
+            color: #2A2A2A !important;
+        }
+
+        [data-testid="metric-container"] {
+            border-bottom: 3px solid #759AAB;
+            background-color: #EEF4F7;
+            border-radius: 8px;
+            padding: 0.8rem;
+        }
+        [data-testid="stMetricValue"] > div,
+        [data-testid="stMetricLabel"] > div,
+        [data-testid="stMetricValue"],
+        [data-testid="stMetricLabel"] {
+            color: #1E3540 !important;
+        }
+
+        hr { border-color: #759AAB44 !important; }
+
+        .stSpinner > div { color: #2A2A2A !important; }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+SAMPLE_SIZE = 50000
 
 # LOAD DOS DADOS (Lazy - mantém em Dask até necessário)
 # ==================================================================
@@ -36,7 +168,7 @@ with st.spinner("🔄 Carregando datasets (modo lazy)..."):
         candiSentimentos,
         candiSintomas,
         datasetSerio,
-        datasetSUS_dask,  # Mantido como Dask
+        datasetSUS_dask,
         datasetNoticias,
         datasetSentimentos2,
         datasetSobrevivencia,
@@ -46,7 +178,7 @@ with st.spinner("🔄 Carregando datasets (modo lazy)..."):
 # HEADER
 # ==================================================================
 
-st.title("🧬 Dashboard de Análise Oncológica - CANDI")
+st.title("🧬 Dashboard de Análise Oncológica — CANDI")
 st.markdown(
     """
     Sistema de análise clínica e epidemiológica de pacientes oncológicos.
@@ -60,15 +192,11 @@ st.divider()
 
 st.sidebar.header("🔎 Filtros")
 
-# Amostragem para performance
 usar_amostra = st.sidebar.checkbox("Usar amostra do SUS (mais rápido)", value=True)
 tamanho_amostra = st.sidebar.slider("Tamanho da amostra SUS", 1000, 100000, 10000, step=1000) if usar_amostra else None
 
-# Filtros calculados de forma lazy
 with st.spinner("Calculando filtros disponíveis..."):
-    # Amostra para obter valores únicos rapidamente
     sample_sus = datasetSUS_dask.sample(frac=0.01, random_state=42)
-
     anos_disponiveis = sorted(sample_sus['ANO_DIAGN'].dropna().unique().compute())
     ufs_disponiveis = sorted(sample_sus['UF_RESID'].dropna().unique().compute())
 
@@ -91,7 +219,6 @@ seletor_sexo = st.sidebar.multiselect(
     format_func=lambda x: 'Masculino' if x == 'M' else 'Feminino'
 )
 
-# Filtros Sobrevivência
 tipos_tumor = sorted(datasetSobrevivencia['tumortype'].unique())
 seletor_tumor = st.sidebar.multiselect(
     "Tipo de Tumor",
@@ -110,14 +237,13 @@ seletor_estagio = st.sidebar.multiselect(
 # ==================================================================
 
 with st.spinner("Aplicando filtros..."):
-    # Aplicar filtros no SUS de forma lazy
     if usar_amostra:
-        # Usar amostra aleatória para performance
-        datasetSUS_amostra = datasetSUS_dask.sample(frac=tamanho_amostra/datasetSUS_dask.shape[0].compute(), random_state=42)
+        datasetSUS_amostra = datasetSUS_dask.sample(
+            frac=tamanho_amostra / datasetSUS_dask.shape[0].compute(), random_state=42
+        )
     else:
         datasetSUS_amostra = datasetSUS_dask
 
-    # Aplicar filtros
     mask_sus = datasetSUS_amostra['ANO_DIAGN'].isin(seletor_ano) if seletor_ano else True
     if seletor_sexo:
         mask_sus = mask_sus & datasetSUS_amostra['SEXO'].isin(seletor_sexo)
@@ -126,7 +252,6 @@ with st.spinner("Aplicando filtros..."):
 
     datasetSUS_filtrado = datasetSUS_amostra[mask_sus]
 
-    # Filtrar Sobrevivência (já é pandas, é pequeno)
     filtros_sobrev = datasetSobrevivencia[
         (datasetSobrevivencia['tumortype'].isin(seletor_tumor) if seletor_tumor else True) &
         (datasetSobrevivencia['cancerstage'].isin(seletor_estagio) if seletor_estagio else True)
@@ -136,14 +261,10 @@ with st.spinner("Aplicando filtros..."):
 # ==================================================================
 
 with st.spinner("Calculando indicadores..."):
-    # Calcular total do SUS (lazy -> compute)
     total_sus = datasetSUS_filtrado.shape[0].compute()
-
-    # Calcular metricas de sobrevivencia (ja eh pandas)
     total_sobrev = len(filtros_sobrev)
     taxa_sobrev = (filtros_sobrev['survivalstatus'] == 'Alive').mean() * 100 if total_sobrev > 0 else 0
 
-    # Cache com valores simples (hashaveis)
     indicadores_sus = {"total": int(total_sus)}
     indicadores_sobrev = {"total": total_sobrev, "taxa_sobrevivencia": taxa_sobrev}
 
@@ -175,41 +296,53 @@ col1, col2 = st.columns(2)
 
 with col1:
     with st.spinner("Gerando gráfico de sexo..."):
-        # Agregação lazy
         sexo_counts = datasetSUS_filtrado.groupby('SEXO').size().compute().reset_index()
         sexo_counts.columns = ['Sexo', 'Quantidade']
         sexo_counts['Sexo'] = sexo_counts['Sexo'].map({'M': 'Masculino', 'F': 'Feminino'})
 
-        fig = px.pie(sexo_counts, values='Quantidade', names='Sexo',
-                    title='Distribuição por Sexo',
-                    color_discrete_sequence=['#4A90D9', '#E74C3C'])
+        fig = px.pie(
+            sexo_counts, values='Quantidade', names='Sexo',
+            title='Distribuição por Sexo',
+            color='Sexo',
+            color_discrete_map={'Masculino': COR_MASCULINO, 'Feminino': COR_FEMININO},
+        )
+        fig.update_layout(**LAYOUT_DEFAULTS)
         st.plotly_chart(fig, use_container_width=True)
 
 with col2:
     with st.spinner("Gerando gráfico por ano..."):
-        # Agregação lazy - limitar a top 10 anos
-        ano_counts = (datasetSUS_filtrado.groupby('ANO_DIAGN').size()
-                     .compute().reset_index().sort_values('ANO_DIAGN'))
+        ano_counts = (
+            datasetSUS_filtrado.groupby('ANO_DIAGN').size()
+            .compute().reset_index().sort_values('ANO_DIAGN')
+        )
         ano_counts.columns = ['Ano', 'Quantidade']
 
-        fig = px.bar(ano_counts.tail(10), x='Ano', y='Quantidade',
-                    title='Casos por Ano (últimos 10)',
-                    color='Quantidade', color_continuous_scale='Blues')
-        fig.update_layout(plot_bgcolor=TRANSPARENT_BG)
+        fig = px.bar(
+            ano_counts.tail(10), x='Ano', y='Quantidade',
+            title='Casos por Ano (últimos 10)',
+            color='Quantidade',
+            color_continuous_scale=CANDI_SCALE,
+        )
+        fig.update_layout(**LAYOUT_DEFAULTS)
         st.plotly_chart(fig, use_container_width=True)
 
 # Casos por UF (Top 10)
 st.subheader("🗺️ Distribuição Geográfica (Top 10 UFs)")
 
 with st.spinner("Calculando distribuição geográfica..."):
-    uf_counts = (datasetSUS_filtrado.groupby('UF_RESID').size()
-                .compute().reset_index().sort_values(0, ascending=False).head(10))
+    uf_counts = (
+        datasetSUS_filtrado.groupby('UF_RESID').size()
+        .compute().reset_index().sort_values(0, ascending=False).head(10)
+    )
     uf_counts.columns = ['UF', 'Quantidade']
 
-    fig = px.bar(uf_counts, x='UF', y='Quantidade',
-                title='Top 10 UFs com mais casos',
-                color='Quantidade', color_continuous_scale='Viridis')
-    fig.update_layout(plot_bgcolor=TRANSPARENT_BG)
+    fig = px.bar(
+        uf_counts, x='UF', y='Quantidade',
+        title='Top 10 UFs com mais casos',
+        color='Quantidade',
+        color_continuous_scale=CANDI_SCALE,
+    )
+    fig.update_layout(**LAYOUT_DEFAULTS)
     st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
@@ -222,36 +355,50 @@ st.subheader("💚 Análise de Sobrevivência")
 col3, col4 = st.columns(2)
 
 with col3:
-    survival_by_tumor = (filtros_sobrev.groupby('tumortype')['survivalstatus']
-                        .apply(lambda x: (x == 'Alive').sum() / len(x) * 100)
-                        .reset_index())
+    survival_by_tumor = (
+        filtros_sobrev.groupby('tumortype')['survivalstatus']
+        .apply(lambda x: (x == 'Alive').sum() / len(x) * 100)
+        .reset_index()
+    )
     survival_by_tumor.columns = ['Tipo', 'Taxa (%)']
 
-    fig = px.bar(survival_by_tumor, x='Tipo', y='Taxa (%)',
-                title='Taxa de Sobrevivência por Tumor',
-                color='Taxa (%)', color_continuous_scale='RdYlGn')
-    fig.update_layout(plot_bgcolor=TRANSPARENT_BG)
+    fig = px.bar(
+        survival_by_tumor, x='Tipo', y='Taxa (%)',
+        title='Taxa de Sobrevivência por Tumor',
+        color='Taxa (%)',
+        color_continuous_scale=CANDI_SCALE,
+    )
+    fig.update_layout(**LAYOUT_DEFAULTS)
     st.plotly_chart(fig, use_container_width=True)
 
 with col4:
     estagio_counts = filtros_sobrev['cancerstage'].value_counts().reset_index()
     estagio_counts.columns = ['Estágio', 'Quantidade']
 
-    fig = px.pie(estagio_counts, values='Quantidade', names='Estágio',
-                title='Distribuição por Estágio',
-                color_discrete_sequence=px.colors.qualitative.Set3)
+    fig = px.pie(
+        estagio_counts, values='Quantidade', names='Estágio',
+        title='Distribuição por Estágio',
+        color_discrete_sequence=CANDI_CATEGORICAL,
+    )
+    fig.update_layout(**LAYOUT_DEFAULTS)
     st.plotly_chart(fig, use_container_width=True)
 
 # Scatter plot (limitado a 1000 pontos)
 st.subheader("📈 Tamanho do Tumor vs Acompanhamento")
 
-sample_sobrev = filtros_sobrev.sample(min(1000, len(filtros_sobrev)), random_state=42) if len(filtros_sobrev) > 1000 else filtros_sobrev
+sample_sobrev = (
+    filtros_sobrev.sample(min(1000, len(filtros_sobrev)), random_state=42)
+    if len(filtros_sobrev) > 1000
+    else filtros_sobrev
+)
 
-fig = px.scatter(sample_sobrev, x='tumorsize', y='followupmonths',
-                color='survivalstatus', symbol='cancerstage',
-                title=f'Amostra de {len(sample_sobrev)} pacientes',
-                color_discrete_map={'Alive': '#2ECC71', 'Deceased': '#E74C3C'})
-fig.update_layout(plot_bgcolor=TRANSPARENT_BG)
+fig = px.scatter(
+    sample_sobrev, x='tumorsize', y='followupmonths',
+    color='survivalstatus', symbol='cancerstage',
+    title=f'Amostra de {len(sample_sobrev)} pacientes',
+    color_discrete_map={'Alive': COR_BENIGNO, 'Deceased': COR_MALIGNO},
+)
+fig.update_layout(**LAYOUT_DEFAULTS)
 st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
@@ -268,30 +415,48 @@ with col5:
     diag_counts.columns = ['Diag', 'Quantidade']
     diag_counts['Diagnóstico'] = diag_counts['Diag'].map({'M': 'Maligno', 'B': 'Benigno'})
 
-    fig = px.pie(diag_counts, values='Quantidade', names='Diagnóstico',
-                title='Diagnósticos',
-                color='Diagnóstico',
-                color_discrete_map={'Maligno': '#E74C3C', 'Benigno': '#2ECC71'})
+    fig = px.pie(
+        diag_counts, values='Quantidade', names='Diagnóstico',
+        title='Diagnósticos',
+        color='Diagnóstico',
+        color_discrete_map={'Maligno': COR_MALIGNO, 'Benigno': COR_BENIGNO},
+    )
+    fig.update_layout(**LAYOUT_DEFAULTS)
     st.plotly_chart(fig, use_container_width=True)
 
 with col6:
-    fig = px.box(datasetSerio, x='diagnosis', y='radius_mean',
-                color='diagnosis',
-                title='Raio Médio por Diagnóstico',
-                labels={'diagnosis': 'Tipo', 'radius_mean': 'Raio (mm)'},
-                color_discrete_map={'M': '#E74C3C', 'B': '#2ECC71'})
-    fig.update_layout(plot_bgcolor=TRANSPARENT_BG, showlegend=False)
+    fig = px.box(
+        datasetSerio, x='diagnosis', y='radius_mean',
+        color='diagnosis',
+        title='Raio Médio por Diagnóstico',
+        labels={'diagnosis': 'Tipo', 'radius_mean': 'Raio (mm)'},
+        color_discrete_map={'M': COR_MALIGNO, 'B': COR_BENIGNO},
+    )
+    fig.update_layout(**LAYOUT_DEFAULTS, showlegend=False)
     st.plotly_chart(fig, use_container_width=True)
 
-# Heatmap de correlação (amostra se necessário)
+# Heatmap de correlação
 st.subheader("🌡️ Correlação entre Características")
 
-features = ['radius_mean', 'texture_mean', 'perimeter_mean', 'area_mean',
-            'smoothness_mean', 'compactness_mean', 'concavity_mean']
+features = [
+    'radius_mean', 'texture_mean', 'perimeter_mean', 'area_mean',
+    'smoothness_mean', 'compactness_mean', 'concavity_mean',
+]
 corr_matrix = datasetSerio[features].corr()
 
-fig = px.imshow(corr_matrix, text_auto='.1f', aspect='auto',
-                color_continuous_scale='RdBu_r')
+fig = px.imshow(
+    corr_matrix, text_auto='.1f', aspect='auto',
+    color_continuous_scale=[
+        "#3D6878",        # azul escuro
+        CANDI_TERTIARY,   # #759AAB azul médio
+        "#EEF4F7",        # azul pálido
+        "#FFFFFF",        # branco neutro
+        CANDI_PRIMARY,    # #FFC4C4 rosa claro
+        "#C46060",        # rosa escuro suave
+    ],
+    color_continuous_midpoint=0,
+)
+fig.update_layout(**LAYOUT_DEFAULTS)
 st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
@@ -307,36 +472,47 @@ with col7:
     happiness_counts = candiSentimentos['happiness'].value_counts().sort_index().reset_index()
     happiness_counts.columns = ['Nível', 'Quantidade']
 
-    fig = px.bar(happiness_counts, x='Nível', y='Quantidade',
-                title='Nível de Felicidade',
-                color='Quantidade', color_continuous_scale='RdYlGn')
-    fig.update_layout(plot_bgcolor=TRANSPARENT_BG)
+    fig = px.bar(
+        happiness_counts, x='Nível', y='Quantidade',
+        title='Nível de Felicidade',
+        color='Quantidade',
+        color_continuous_scale=CANDI_SCALE,
+    )
+    fig.update_layout(**LAYOUT_DEFAULTS)
     st.plotly_chart(fig, use_container_width=True)
 
 with col8:
-    # Usar a coluna 'data' já convertida no cross-dataset section
     if 'data' not in candiSentimentos.columns:
         candiSentimentos['data'] = pd.to_datetime(candiSentimentos['created_at'], errors='coerce')
     candiSentimentos['data_date'] = candiSentimentos['data'].dt.date
     timeline = candiSentimentos.groupby('data_date')['happiness'].mean().reset_index()
 
-    fig = px.line(timeline, x='data_date', y='happiness',
-                 title='Evolução do Sentimento', markers=True)
-    fig.update_layout(plot_bgcolor=TRANSPARENT_BG)
+    fig = px.line(
+        timeline, x='data_date', y='happiness',
+        title='Evolução do Sentimento', markers=True,
+        color_discrete_sequence=[CANDI_TERTIARY],
+    )
+    fig.update_traces(line_color=CANDI_TERTIARY, marker_color=COR_MALIGNO)
+    fig.update_layout(**LAYOUT_DEFAULTS)
     st.plotly_chart(fig, use_container_width=True)
 
 # Top sintomas
 st.subheader("🩺 Top Sintomas")
 
-sintomas_lista = (candiSintomas['description'].str.lower()
-                 .str.split(r'[,;]').explode().str.strip())
+sintomas_lista = (
+    candiSintomas['description'].str.lower()
+    .str.split(r'[,;]').explode().str.strip()
+)
 sintomas_counts = sintomas_lista.value_counts().head(10).reset_index()
 sintomas_counts.columns = ['Sintoma', 'Frequência']
 
-fig = px.bar(sintomas_counts, x='Frequência', y='Sintoma',
-            orientation='h', title='Top 10 Sintomas',
-            color='Frequência', color_continuous_scale='Reds')
-fig.update_layout(plot_bgcolor=TRANSPARENT_BG)
+fig = px.bar(
+    sintomas_counts, x='Frequência', y='Sintoma',
+    orientation='h', title='Top 10 Sintomas',
+    color='Frequência',
+    color_continuous_scale=CANDI_SCALE,
+)
+fig.update_layout(**LAYOUT_DEFAULTS)
 st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
@@ -345,7 +521,6 @@ st.divider()
 # ==================================================================
 
 st.subheader("🔗 Análise Cruzada de Datasets")
-
 st.markdown("Comparação entre diferentes fontes de dados para identificar padrões.")
 
 col_cross1, col_cross2 = st.columns(2)
@@ -353,22 +528,16 @@ col_cross1, col_cross2 = st.columns(2)
 with col_cross1:
     st.markdown("**Distribuição Etária: CANDI vs Sobrevivência**")
 
-    # Idade no dataset CANDI (calculada aproximada pelo perfil - simplificado)
     candiSentimentos['data'] = pd.to_datetime(candiSentimentos['created_at'], errors='coerce')
-    idade_candi = candiSentimentos['data'].dt.year - 2020  # Proxy simplificado
-    idade_candi = idade_candi.clip(18, 80)  # Limitar a faixa etária razoável
-
-    # Idade no dataset Sobrevivência
+    idade_candi = (candiSentimentos['data'].dt.year - 2020).clip(18, 80)
     idade_sobrev = filtros_sobrev['age'].dropna()
 
-    # Criar bins de idade
     bins = [0, 30, 40, 50, 60, 70, 100]
     labels = ['<30', '30-40', '40-50', '50-60', '60-70', '70+']
 
     candi_bins = pd.cut(idade_candi, bins=bins, labels=labels).value_counts().sort_index()
     sobrev_bins = pd.cut(idade_sobrev, bins=bins, labels=labels).value_counts().sort_index()
 
-    # Normalizar para percentual
     candi_pct = (candi_bins / candi_bins.sum() * 100).reset_index()
     candi_pct.columns = ['Faixa', 'Percentual']
     candi_pct['Dataset'] = 'CANDI (Sentimentos)'
@@ -379,106 +548,107 @@ with col_cross1:
 
     cross_data = pd.concat([candi_pct, sobrev_pct])
 
-    fig = px.bar(cross_data, x='Faixa', y='Percentual', color='Dataset',
-                barmode='group',
-                title='Distribuição Etária por Dataset',
-                color_discrete_sequence=['#4A90D9', '#E74C3C'])
-    fig.update_layout(plot_bgcolor=TRANSPARENT_BG)
+    fig = px.bar(
+        cross_data, x='Faixa', y='Percentual', color='Dataset',
+        barmode='group',
+        title='Distribuição Etária por Dataset',
+        color_discrete_map={
+            'CANDI (Sentimentos)': COR_MALIGNO,
+            'Sobrevivência': COR_BENIGNO,
+        },
+    )
+    fig.update_layout(**LAYOUT_DEFAULTS)
     st.plotly_chart(fig, use_container_width=True)
 
 with col_cross2:
-    st.markdown("**Felícidade CANDI vs Estágio do Câncer**")
+    st.markdown("**Felicidade CANDI vs Estágio do Câncer**")
 
-    # Agregar sentimentos por mês
-    candiSentimentos['mes'] = candiSentimentos['data'].dt.to_period('M')
-    sentimento_mensal = candiSentimentos.groupby('mes')['happiness'].mean().reset_index()
-    sentimento_mensal['mes_str'] = sentimento_mensal['mes'].astype(str)
-
-    # Distribuição de estágios no dataset Sobrevivência
     estagio_dist = filtros_sobrev['cancerstage'].value_counts(normalize=True).reset_index()
     estagio_dist.columns = ['Estágio', 'Proporção']
     estagio_dist['Proporção'] *= 100
 
-    # Criar duplo eixo (subplots)
-    from plotly.subplots import make_subplots
-
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
-    # Barra para estágios
     fig.add_trace(
-        go.Bar(x=estagio_dist['Estágio'], y=estagio_dist['Proporção'],
-               name='% Estágios (Sobrevivência)', marker_color='#E74C3C'),
-        secondary_y=False
+        go.Bar(
+            x=estagio_dist['Estágio'], y=estagio_dist['Proporção'],
+            name='% Estágios (Sobrevivência)',
+            marker_color=COR_MALIGNO,
+        ),
+        secondary_y=False,
     )
 
-    # Linha para felicidade (média geral como referência)
     felicidade_media = candiSentimentos['happiness'].mean()
     fig.add_trace(
-        go.Scatter(x=estagio_dist['Estágio'],
-                    y=[felicidade_media] * len(estagio_dist),
-                    name=f'Felicidade Média CANDI ({felicidade_media:.1f})',
-                    mode='lines+markers',
-                    line=dict(color='#2ECC71', width=3)),
-        secondary_y=True
+        go.Scatter(
+            x=estagio_dist['Estágio'],
+            y=[felicidade_media] * len(estagio_dist),
+            name=f'Felicidade Média CANDI ({felicidade_media:.1f})',
+            mode='lines+markers',
+            line=dict(color=COR_BENIGNO, width=3),
+            marker=dict(color=COR_BENIGNO),
+        ),
+        secondary_y=True,
     )
 
     fig.update_layout(
         title_text="Estágio do Câncer vs Felicidade Média",
-        plot_bgcolor=TRANSPARENT_BG
+        **LAYOUT_DEFAULTS,
     )
     fig.update_yaxes(title_text="% Pacientes por Estágio", secondary_y=False)
     fig.update_yaxes(title_text="Nível de Felicidade", secondary_y=True)
     st.plotly_chart(fig, use_container_width=True)
 
-# Segundo gráfico cross-dataset: Comparação de severidade
+# Severidade cruzada
 st.markdown("**🔬 Severidade do Tumor: Dataset Wisconsin vs Sobrevivência**")
 
-# Dataset Wisconsin - Radius (proxy para severidade)
 severidade_wisconsin = datasetSerio.copy()
 severidade_wisconsin['Severidade'] = pd.cut(
     severidade_wisconsin['radius_mean'],
     bins=[0, 12, 16, 20, 50],
-    labels=['Baixa', 'Média', 'Alta', 'Muito Alta']
+    labels=['Baixa', 'Média', 'Alta', 'Muito Alta'],
 )
-
-# Contagem por severidade
 sev_wisc = severidade_wisconsin['Severidade'].value_counts().reset_index()
 sev_wisc.columns = ['Severidade', 'Contagem']
 sev_wisc['Dataset'] = 'Wisconsin (Tumor)'
 
-# Dataset Sobrevivência - Tumor size como proxy
 severidade_sobrev = filtros_sobrev.copy()
 severidade_sobrev['Severidade'] = pd.cut(
     severidade_sobrev['tumorsize'],
     bins=[0, 6, 8, 10, 20],
-    labels=['Baixa', 'Média', 'Alta', 'Muito Alta']
+    labels=['Baixa', 'Média', 'Alta', 'Muito Alta'],
 )
-
 sev_sobrev = severidade_sobrev['Severidade'].value_counts().reset_index()
 sev_sobrev.columns = ['Severidade', 'Contagem']
 sev_sobrev['Dataset'] = 'Sobrevivência'
 
-# Combinar
 cross_sev = pd.concat([sev_wisc, sev_sobrev])
 
-fig = px.bar(cross_sev, x='Severidade', y='Contagem', color='Dataset',
-            barmode='group',
-            title='Distribuição de Severidade Tumoral por Dataset',
-            color_discrete_sequence=['#9B59B6', '#F39C12'])
-fig.update_layout(plot_bgcolor=TRANSPARENT_BG)
+fig = px.bar(
+    cross_sev, x='Severidade', y='Contagem', color='Dataset',
+    barmode='group',
+    title='Distribuição de Severidade Tumoral por Dataset',
+    color_discrete_map={
+        'Wisconsin (Tumor)': CANDI_TERTIARY,
+        'Sobrevivência': "#E87878",
+    },
+)
+fig.update_layout(**LAYOUT_DEFAULTS)
 st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
 
-# TEMPO DE TRATAMENTO (SEÇÃO OTIMIZADA)
+# TEMPO DE TRATAMENTO
 # ==================================================================
 
 st.subheader("⏱️ Tempo para Início do Tratamento")
 
-# Usar amostra pequena para evitar freeze
 with st.spinner("Carregando dados de tratamento (amostra)..."):
-    # Calcular idade apenas para amostra
-    sample_tempo = datasetSUS_filtrado.sample(frac=0.05, random_state=42) if len(datasetSUS_filtrado) > 10000 else datasetSUS_filtrado
+    sample_tempo = (
+        datasetSUS_filtrado.sample(frac=0.05, random_state=42)
+        if len(datasetSUS_filtrado) > 10000
+        else datasetSUS_filtrado
+    )
 
     if hasattr(sample_tempo, 'compute'):
         sample_tempo = sample_tempo.compute()
@@ -488,28 +658,27 @@ with st.spinner("Carregando dados de tratamento (amostra)..."):
         sample_tempo['DT_DIAG'] = pd.to_datetime(sample_tempo['DT_DIAG'], errors='coerce')
         sample_tempo['IDADE'] = (sample_tempo['DT_DIAG'] - sample_tempo['DT_NASC']).dt.days / 365.25
 
-        # Filtrar valores válidos
         filtered_data = sample_tempo[
             (sample_tempo['TEMPO_TRAT'].notna()) &
             (sample_tempo['TEMPO_TRAT'] >= 0) &
-            (sample_tempo['TEMPO_TRAT'] < 365) &  # Remove outliers
+            (sample_tempo['TEMPO_TRAT'] < 365) &
             (sample_tempo['IDADE'].notna()) &
             (sample_tempo['IDADE'] > 0) &
             (sample_tempo['IDADE'] < 120)
         ]
 
-        # Amostrar apenas se houver mais dados que o tamanho desejado
-        if len(filtered_data) > 5000:
-            plot_data = filtered_data.sample(5000, random_state=42)
-        else:
-            plot_data = filtered_data
+        plot_data = filtered_data.sample(5000, random_state=42) if len(filtered_data) > 5000 else filtered_data
 
         if len(plot_data) > 0:
-            fig = px.scatter(plot_data, x='IDADE', y='TEMPO_TRAT',
-                           title=f'Idade vs Tempo de Tratamento (Amostra: {len(plot_data)} pacientes)',
-                           labels={'IDADE': 'Idade (anos)', 'TEMPO_TRAT': 'Dias até Tratamento'},
-                           opacity=0.5)
-            fig.update_layout(plot_bgcolor=TRANSPARENT_BG)
+            fig = px.scatter(
+                plot_data, x='IDADE', y='TEMPO_TRAT',
+                title=f'Idade vs Tempo de Tratamento (Amostra: {len(plot_data)} pacientes)',
+                labels={'IDADE': 'Idade (anos)', 'TEMPO_TRAT': 'Dias até Tratamento'},
+                opacity=0.5,
+                color_discrete_sequence=[CANDI_TERTIARY],
+            )
+            fig.update_traces(marker_color=CANDI_TERTIARY)
+            fig.update_layout(**LAYOUT_DEFAULTS)
             st.plotly_chart(fig, use_container_width=True)
         else:
             st.info("Dados insuficientes para visualização.")
@@ -520,22 +689,18 @@ with st.spinner("Carregando dados de tratamento (amostra)..."):
 st.subheader("📍 Tempo de Tratamento por Região")
 
 if not datasetTempoTratamento.empty:
-    # Processar dados do CSV de tempo por região
     try:
         regioes = []
         for _, row in datasetTempoTratamento.iterrows():
             if ';' in str(row.iloc[0]):
                 partes = str(row.iloc[0]).split(';')
-                regioes.append({
-                    'Região': partes[0],
-                    'Dados': row.iloc[0]
-                })
+                regioes.append({'Região': partes[0], 'Dados': row.iloc[0]})
 
         if regioes:
             st.dataframe(pd.DataFrame(regioes), use_container_width=True)
         else:
             st.dataframe(datasetTempoTratamento.head(), use_container_width=True)
-    except Exception as e:
+    except Exception:
         st.write("Dados de tempo por região disponíveis no dataset.")
 
 st.divider()
@@ -543,12 +708,15 @@ st.divider()
 # TABELA FINAL
 # ==================================================================
 
-st.subheader("📋 Top 10 - Maior Tempo de Acompanhamento")
+st.subheader("📋 Top 10 — Maior Tempo de Acompanhamento")
 
 if len(filtros_sobrev) > 0:
-    top10 = (filtros_sobrev.nlargest(10, 'followupmonths')
-             [['patientid', 'gender', 'age', 'tumortype', 'cancerstage',
-               'survivalstatus', 'followupmonths']].reset_index(drop=True))
+    top10 = (
+        filtros_sobrev.nlargest(10, 'followupmonths')
+        [['patientid', 'gender', 'age', 'tumortype', 'cancerstage',
+          'survivalstatus', 'followupmonths']]
+        .reset_index(drop=True)
+    )
     st.dataframe(top10, use_container_width=True)
 
-st.caption("Dashboard CANDI - Big Data em Saúde 🔬")
+st.caption("Dashboard CANDI — Big Data em Saúde 🔬")
