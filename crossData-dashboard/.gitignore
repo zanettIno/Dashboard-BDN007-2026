@@ -104,3 +104,8 @@ Thumbs.db
 *.swo
 
 *.csv
+.env
+venv/
+__pycache__/
+*.pyc
+big_candi_datasets/
