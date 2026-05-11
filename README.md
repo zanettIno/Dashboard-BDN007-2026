@@ -28,10 +28,12 @@ Fatec São Caetano do Sul · 2026
 Dashboard-BDN007-2026/
 ├── cancerPatientData-dashboard/   # Dashboard clínico individual (dataset único)
 │
-└── crossData-dashboard/           # Dashboard de análise cruzada (múltiplos datasets)
-    ├── dados-candi-API/           # Código fonte da Lambda que expõe dados do CANDI
+└── crossData-dashboard/           # Dashboard de análise cruzada (Dashboard principal)
+    ├── dados-candi-API/           # Código fonte da Lambda que fornece dados sobre o app Candi
+    │
+    ├── testes-dados/              # Notebook Jupyter para análise de datasets
+    │
     ├── main.py                    # Aplicação Streamlit principal
-    ├── main.ipynb                 # Notebook de exploração dos datasets
     ├── load_datasets.py           # Módulo de carregamento lazy dos datasets
     ├── load_kaggle.py             # Módulo de download automático via Kaggle API
     ├── .env.example               # Variáveis de ambiente necessárias (sem valores)
@@ -40,7 +42,7 @@ Dashboard-BDN007-2026/
 
 ---
 
-## 📊 Dashboard N1
+## 📊 Dashboard Principal
 
 ### `crossData-dashboard` — Dashboard de Análise Cruzada
 
@@ -105,7 +107,6 @@ cp .env.example .env
 ```env
 KAGGLE_USERNAME=seu_username_kaggle
 KAGGLE_KEY=sua_api_key_kaggle
-DASHBOARD_API_URL=url_da_lambda
 ```
 
 > As credenciais do Kaggle estão disponíveis em kaggle.com → Account → API → Create New Token.  
@@ -120,17 +121,6 @@ streamlit run main.py
 Os datasets do Kaggle são **baixados automaticamente** na primeira execução e ficam em cache local. Não é necessário baixar nenhum CSV manualmente.
 
 > ⚠️ O `datasetSUS.csv` é grande. O dashboard usa processamento lazy com Dask e oferece modo de amostragem para melhor performance.
-
----
-
-## ☁️ Deploy (Streamlit Cloud)
-
-O repositório está configurado para deploy contínuo no Streamlit Cloud. Qualquer `push` no branch principal atualiza o app automaticamente.
-
-Para configurar o deploy:
-1. Acesse [share.streamlit.io](https://share.streamlit.io) e conecte o repositório
-2. Defina o **Main file path** como `crossData-dashboard/main.py`
-3. Em **Advanced settings → Secrets**, adicione as mesmas variáveis do `.env`
 
 ---
 
