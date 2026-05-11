@@ -5,7 +5,6 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from load_datasets import load_dataset_lazy
 
 # CONFIGURAÇÃO DE PÁGINA
 # ==================================================================
@@ -17,38 +16,37 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-
-CANDI_PRIMARY   = "#FFC4C4"   
-CANDI_SECONDARY = "#CFFFE5"   
-CANDI_TERTIARY  = "#759AAB"   
+CANDI_PRIMARY   = "#FFC4C4"
+CANDI_SECONDARY = "#CFFFE5"
+CANDI_TERTIARY  = "#759AAB"
 
 CANDI_SCALE = [
-    "#A2ECC5",   
-    CANDI_SECONDARY,   
-    "#D4F3E2",   
-    "#E1F5EA",   
-    "#FFFFFF",   
-    "#FFF4F4",   
+    "#A2ECC5",
+    CANDI_SECONDARY,
+    "#D4F3E2",
+    "#E1F5EA",
+    "#FFFFFF",
+    "#FFF4F4",
     CANDI_PRIMARY,
-    "#F09090",   
-    "#D87D7D", 
+    "#F09090",
+    "#D87D7D",
 ]
 
 CANDI_CATEGORICAL = [
-    CANDI_TERTIARY,   
-    CANDI_PRIMARY,    
-    CANDI_SECONDARY,  
-    "#A8C4D0",        
-    "#F09090",        
-    "#A2ECC5",       
-    "#D87D7D",        
-    "#5A8090",        
+    CANDI_TERTIARY,
+    CANDI_PRIMARY,
+    CANDI_SECONDARY,
+    "#A8C4D0",
+    "#F09090",
+    "#A2ECC5",
+    "#D87D7D",
+    "#5A8090",
 ]
 
-COR_MALIGNO   = "#D87D7D"       
+COR_MALIGNO   = "#D87D7D"
 COR_BENIGNO   = "#8ed3ae"
-COR_MASCULINO = CANDI_TERTIARY   
-COR_FEMININO  = CANDI_PRIMARY    
+COR_MASCULINO = CANDI_TERTIARY
+COR_FEMININO  = CANDI_PRIMARY
 
 TRANSPARENT_BG = "rgba(0,0,0,0)"
 
@@ -148,6 +146,16 @@ st.markdown(
         hr { border-color: #759AAB44 !important; }
 
         .stSpinner > div { color: #2A2A2A !important; }
+
+        .launch-btn > button {
+            background-color: #759AAB !important;
+            color: white !important;
+            font-size: 1.1rem !important;
+            padding: 0.75rem 2rem !important;
+            border-radius: 8px !important;
+            border: none !important;
+            margin-top: 1rem !important;
+        }
     </style>
     """,
     unsafe_allow_html=True,
@@ -155,27 +163,7 @@ st.markdown(
 
 SAMPLE_SIZE = 50000
 
-# LOAD DOS DADOS (Lazy - mantém em Dask até necessário)
-# ==================================================================
-
-@st.cache_resource
-def get_lazy_datasets():
-    """Carrega datasets mantendo formato Dask para eficiência"""
-    return load_dataset_lazy()
-
-with st.spinner("🔄 Carregando datasets (modo lazy)..."):
-    (
-        candiSentimentos,
-        candiSintomas,
-        datasetSerio,
-        datasetSUS_dask,
-        datasetNoticias,
-        datasetSentimentos2,
-        datasetSobrevivencia,
-        datasetTempoTratamento
-    ) = get_lazy_datasets()
-
-# HEADER
+# HEADER — sempre renderiza imediatamente (resolve o health check)
 # ==================================================================
 
 st.title("🧬 Dashboard de Análise Oncológica — CANDI")
@@ -186,6 +174,37 @@ st.markdown(
     """
 )
 st.divider()
+
+# LOAD DOS DADOS — automático, mas protegido contra timeout
+# ==================================================================
+
+@st.cache_resource(show_spinner=False)
+def get_lazy_datasets():
+    from load_datasets import load_dataset_lazy
+    return load_dataset_lazy()
+
+with st.spinner("🔄 Carregando datasets do Kaggle e API CANDI... isso pode levar alguns minutos na primeira execução."):
+    try:
+        (
+            candiSentimentos,
+            candiSintomas,
+            datasetSerio,
+            datasetSUS_dask,
+            datasetNoticias,
+            datasetSentimentos2,
+            datasetSobrevivencia,
+            datasetTempoTratamento
+        ) = get_lazy_datasets()
+    except Exception as e:
+        st.error(f"❌ Erro ao carregar datasets: {e}")
+        st.warning(
+            "Verifique se as variáveis `KAGGLE_USERNAME`, `KAGGLE_KEY` e `DASHBOARD_API_URL` "
+            "estão configuradas no `.env` (local) ou nos **Secrets** do Streamlit Cloud."
+        )
+        if st.button("🔄 Tentar novamente"):
+            st.cache_resource.clear()
+            st.rerun()
+        st.stop()
 
 # SIDEBAR - FILTROS
 # ==================================================================
@@ -326,7 +345,6 @@ with col2:
         fig.update_layout(**LAYOUT_DEFAULTS)
         st.plotly_chart(fig, use_container_width=True)
 
-# Casos por UF (Top 10)
 st.subheader("🗺️ Distribuição Geográfica (Top 10 UFs)")
 
 with st.spinner("Calculando distribuição geográfica..."):
@@ -383,7 +401,6 @@ with col4:
     fig.update_layout(**LAYOUT_DEFAULTS)
     st.plotly_chart(fig, use_container_width=True)
 
-# Scatter plot (limitado a 1000 pontos)
 st.subheader("📈 Tamanho do Tumor vs Acompanhamento")
 
 sample_sobrev = (
@@ -435,7 +452,6 @@ with col6:
     fig.update_layout(**LAYOUT_DEFAULTS, showlegend=False)
     st.plotly_chart(fig, use_container_width=True)
 
-# Heatmap de correlação
 st.subheader("🌡️ Correlação entre Características")
 
 features = [
@@ -447,12 +463,12 @@ corr_matrix = datasetSerio[features].corr()
 fig = px.imshow(
     corr_matrix, text_auto='.1f', aspect='auto',
     color_continuous_scale=[
-        "#3D6878",        # azul escuro
-        CANDI_TERTIARY,   # #759AAB azul médio
-        "#EEF4F7",        # azul pálido
-        "#FFFFFF",        # branco neutro
-        CANDI_PRIMARY,    # #FFC4C4 rosa claro
-        "#C46060",        # rosa escuro suave
+        "#3D6878",
+        CANDI_TERTIARY,
+        "#EEF4F7",
+        "#FFFFFF",
+        CANDI_PRIMARY,
+        "#C46060",
     ],
     color_continuous_midpoint=0,
 )
@@ -496,7 +512,6 @@ with col8:
     fig.update_layout(**LAYOUT_DEFAULTS)
     st.plotly_chart(fig, use_container_width=True)
 
-# Top sintomas
 st.subheader("🩺 Top Sintomas")
 
 sintomas_lista = (
@@ -599,7 +614,6 @@ with col_cross2:
     fig.update_yaxes(title_text="Nível de Felicidade", secondary_y=True)
     st.plotly_chart(fig, use_container_width=True)
 
-# Severidade cruzada
 st.markdown("**🔬 Severidade do Tumor: Dataset Wisconsin vs Sobrevivência**")
 
 severidade_wisconsin = datasetSerio.copy()
@@ -685,7 +699,6 @@ with st.spinner("Carregando dados de tratamento (amostra)..."):
     else:
         st.info("Dados de tempo de tratamento não disponíveis com os filtros atuais.")
 
-# Dados do CSV de tempo de tratamento por região
 st.subheader("📍 Tempo de Tratamento por Região")
 
 if not datasetTempoTratamento.empty:
