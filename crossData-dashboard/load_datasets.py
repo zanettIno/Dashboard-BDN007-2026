@@ -5,7 +5,8 @@ import requests
 
 from load_kaggle import get_datasets_path
 
-DASHBOARD_API_URL = "https://5nyyovibgktczjjtzvmoaq4swe0qbbwz.lambda-url.us-east-1.on.aws/"
+import os
+DASHBOARD_API_URL = os.environ.get("DASHBOARD_API_URL", "")
 
 def _fetch_candi_data() -> tuple[pd.DataFrame, pd.DataFrame]:
     response = requests.get(f"{DASHBOARD_API_URL}/dashboard", timeout=30)
