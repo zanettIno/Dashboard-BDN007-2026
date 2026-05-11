@@ -105,8 +105,9 @@ cp .env.example .env
 ```
 
 ```env
-KAGGLE_USERNAME=seu_username_kaggle
-KAGGLE_KEY=sua_api_key_kaggle
+KAGGLE_USERNAME=
+KAGGLE_KEY=
+DASHBOARD_API_URL=
 ```
 
 > As credenciais do Kaggle estão disponíveis em kaggle.com → Account → API → Create New Token.  
